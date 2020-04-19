@@ -4,6 +4,23 @@ module App
   # (Otherwise Kilt which comes as a Kemal dependency could be used for rendering templates.)
   module HTML
 
+    # Default list of URLs to populate the search box on first visit to the GUI.
+    DEFAULT = <<-URLS
+    https://www.analyticsvidhya.com/blog/2019/06/comprehensive-guide-text-summarization-using-deep-learning-python/
+    https://towardsdatascience.com/text-summarization-using-deep-learning-6e379ed2e89c
+    https://machinelearningmastery.com/gentle-introduction-text-summarization/
+    https://www.sciencedirect.com/science/article/pii/S1319157819301259
+    https://github.com/mbadry1/DeepLearning.ai-Summary
+    https://edition.cnn.com/2020/03/12/opinions/oval-office-coronavirus-speech-trumps-worst-bergen/index.html
+    https://www.nytimes.com/2020/03/11/us/politics/trump-coronavirus-speech.html
+    https://www.caranddriver.com/reviews/a21786823/2019-audi-q8-first-drive-review/
+    https://www.topgear.com/car-reviews/audi/q8
+    https://www.youtube.com/watch?v=mii6NydPiqI
+    https://gardenerspath.com/how-to/beginners/first-vegetable-garden/
+    https://lifehacker.com/the-seven-easiest-vegetables-to-grow-for-beginner-garde-1562176780
+    https://www.gardeningknowhow.com/edible/vegetables/vgen/vegetable-gardening-for-beginners.htm
+    URLS
+
     # Wraps content in basic HTML layout
     def self.wrap(io)
       HTML.page_header io
@@ -25,6 +42,7 @@ module App
               td:nth-child(1) { text-align: left; }
               td:nth-child(3), td:nth-child(4), th:nth-child(3), th:nth-child(4) { text-align: right; }
               hr { margin:20px auto; }
+              a { text-decoration: none; }
             </style>
           </head>
           <body>
@@ -42,7 +60,7 @@ module App
     end
 
     # Prints HTML input form for URLs to process
-    def self.form(io, body = "")
+    def self.form(io, body = DEFAULT)
       io << <<-HTML
         <form method="post">
           <p><textarea name="urls">#{body}</textarea></p>
@@ -76,9 +94,8 @@ module App
     end
 
     # Prints individual results row
-    def self.table_row(io, url, date, et, gt, status)
-      #io << %Q{<tr><td>#{url}</td><td>#{date}</td><td>#{"%.3f" % et}</td><td>#{"%.3f" % gt}</td><td>#{status}</td></tr>\n}
-      io << %Q{<tr><td>#{url}</td><td>-</td><td>#{"%.3f" % et}</td><td>#{"%.3f" % gt}</td><td>#{status}</td></tr>\n}
+    def self.table_row(io, url, title, date, et, gt, status)
+      io << %Q{<tr><td><a href="#{url}">#{title}</a></td><td>#{date}</td><td>#{"%.4f" % et}</td><td>#{"%.3f" % gt}</td><td>#{status}</td></tr>\n}
       nil
     end
 

@@ -19,11 +19,18 @@ shards build [--release]
 The application supports the following options:
 
 ```
-    -c, --connections (50)    - Concurrent connections per host
-    -d, --downloaders (200)   - Number of downloading threads
+    -c, --connections    (50) - Concurrent connections per host
+    -d, --downloaders   (200) - Number of downloading threads
     -h, --help                - This help
-    -p, --parsers     (10)    - Number of date parsing threads
+    -p, --parsers        (10) - Number of date parsing threads
     -v, --verbose     (false) - Print a dot (.) on each download
+                                Print a plus (+) on each parse
+
+    -C, --connect-timeout (5) - Set connect timeout (s)
+    -D, --dns-timeout     (5) - Set DNS timeout (s)
+    -R, --read-timeout    (5) - Set read timeout (s)
+    -W, --write-timeout   (5) - Set write timeout (s)
+    -T, --timeout         (5) - Set all timeouts (s)
 ```
 
 Complete example:
@@ -59,9 +66,8 @@ As URLs are processed, each result row in the browser
 displays the following values:
 
 1. Page URL
-2. Parsed creation/modification date. **This is currently always empty,
-the parsing strategies and displaying the parsed date will be committed
-soon**
+2. Parsed creation/modification date. If no date was determined, it is
+reported as "0001-01-01"
 3. Elapsed time for parsing the date (this value includes all Fiber
 wait times, but as almost all methods invoked should be non-blocking,
 this value is generally close to the real algorithm execution time)
@@ -101,10 +107,7 @@ individual domain.
 
 Parallel connections to the same host are not created up-front, but
 are instantiated only if needed to crawl multiple pages from the same
-domain simultaneously. The method of finding
-the first available HTTP::Client for a certain domain is implemented
-using a simple and efficient algorithm based on BitArray, allowing the
-complete design to rely on just one general-purpose Mutex.
+domain simultaneously.
 
 The app is intended to run N (--downloader) download
 fibers in parallel. However, if the input list is heavily sorted by
@@ -118,15 +121,17 @@ waits for the next page to download.
 
 The parser processes receive downloaded data and try to determine the
 page creation or modification date using various parsing strategies.
+The current design of the parsing and extraction system is documented
+in the file *PARSING.md*.
 
 As each parser finishes scanning through the page, it sends the final
-results and statistics through another Channel and then wait for another
+results and statistics through the results Channel and then waits for another
 page to parse.
 
 ### In more general terms
 
 The implemented design based on downloaders, channels, and parser threads is
-chosen based on the idea that a real-world, larger system could use a
+chosen on the idea that a real-world, larger system could use a
 similar architecture on a larger scale.
 
 For example, the downloader processes might be advanced clients capable
@@ -144,7 +149,7 @@ parsing ones might be just one type of consumer.
 In a more complete, non-prototype implementation, a couple improvements
 could be added:
 
-- Per-domain crawling limits and/or bandwidth caps
+- More per-domain crawling limits and/or bandwidth caps
 
 - Keeping track of which parsing strategies had the best success rate on
 particular domains and/or subdirectories within domains. The order in
