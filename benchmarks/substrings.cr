@@ -42,18 +42,15 @@ class Substring
   end
 
   def bytesize=(arg)
-    p :SET_SIZE_TO, arg
     @header[1] = arg
     @byte = @string.to_unsafe[@from + arg]
     @string.to_unsafe[@from + arg + 1] = 0
   end
 
   def to_unsafe
-    p :UNSA, @from
     @string.to_unsafe + @from
   end
   def to_slice
-    p :SLIC, @bytesize
     Slice.new(to_unsafe, @bytesize, read_only: true)
   end
 

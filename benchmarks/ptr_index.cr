@@ -10,7 +10,9 @@ a += a
 ptr = LibC.strstr a, "c"
 #pos = 10
 
+w, y, z = nil, nil, nil
+
 Benchmark.ips(warmup:1) do |x|
-  x.report("Pointer[10]") { ptr[10]; ptr[10]; ptr[10]; }
-  x.report("pos + Pointer[pos]") { pos = 10; ptr[pos]; ptr[pos]; ptr[pos]; }
+  x.report("Pointer[10]") { w=ptr[10]; y=ptr[10]; z=ptr[10]; }
+  x.report("pos + Pointer[pos]") { pos = 10; w=ptr[pos]; y=ptr[pos]; z=ptr[pos]; }
 end

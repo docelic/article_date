@@ -14,11 +14,12 @@ end
 #       600                600           600                 60
 a = "pre" * 200 + %q{<meta name="article:published" content="2020-01-01" and more>} + "pos" * 200
 
+r = nil
 
-p App::Parser::HTML::Basic.find_range(a, ["meta"])
+p App::Parser::HTML::Basic.find_range(a, {"<meta"}, {"</meta"})
 p App::Parser::HTML::Basic.find_enclosing(a, LibC.strstr(a, ":pub") - a.to_unsafe)
 
 Benchmark.ips(warmup:1) do |x|
-  x.report("range")     { App::Parser::HTML::Basic.find_range(a, {"meta"}, 0, false) }
-  x.report("enclosing") { App::Parser::HTML::Basic.find_enclosing(a, LibC.strstr(a, ":pub") - a.to_unsafe) }
+  x.report("range")     { r = App::Parser::HTML::Basic.find_range(a, {"<meta"}, {"</meta"}, 0, false) }
+  x.report("enclosing") { r = App::Parser::HTML::Basic.find_enclosing(a, LibC.strstr(a, ":pub") - a.to_unsafe) }
 end
