@@ -1,7 +1,8 @@
 # HTML downloader implemented using Crystal's HTTP::Client.
 #
-# Supports basic functions like HTTP Keep-Alive, configurable
-# number of connections per domain, and configurable timeouts.
+# Supports basic functions like HTTP Keep-Alive, redirections,
+# configurable number of connections per domain, and configurable
+# timeouts.
 #
 # It is limited to HTTP protocol version which is supported by Crystal.
 class App::Downloader::HTTPClient < App::Downloader
@@ -56,19 +57,27 @@ class App::Downloader::HTTPClient < App::Downloader
       tm = Time.monotonic
       print '.' if App::Config.verbose
       get = begin
-        client.get uri.path.empty? ? "/" : uri.path
-      rescue e : Socket::Addrinfo::Error | OpenSSL::SSL::Error | IO::TimeoutError
+        client.get uri.full_path.empty? ? "/" : uri.full_path
+      rescue e : Socket::Addrinfo::Error | OpenSSL::SSL::Error | IO::TimeoutError | IO::Error
         title += " - #{e.to_s}"
         @clients[domain].delete client
         HTTP::Client::Response.new 422
       end
       tm = Time.monotonic - tm
 
-      @parse_tasks.send App::Processor::Content.new url: url, title: title, gt: tm, status: get.status_code, body: get.body
       @processor.mutex.synchronize do
         @processor.download_time += tm
       end
       @usage[domain][idx] = false
+
+      if 301 <= get.status_code <= 308
+        # Means we got a redirect; requeue with new URL
+        @download_tasks.send({url, URI.parse get.headers["location"]})
+      else
+        # We want to pass even invalid responses to parser tasks;
+        # it is up to them to bail out if content is not there.
+        @parse_tasks.send App::Processor::Content.new url: url, title: title, gt: tm, response: get
+      end
     end
     rescue e : Channel::ClosedError
   end

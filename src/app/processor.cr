@@ -2,14 +2,15 @@ require "bit_array"
 
 require "./parser/html/basic"
 
-# Threaded content retrieval and parsing support.
+# Default processor/scheduler implementation.
 class App::Processor
   alias Task = Tuple(String, URI)
-  alias Content = NamedTuple(url: String, title: String, gt: Time::Span, status: Int32, body: String)
-  alias Result  = NamedTuple(url: String, title: String, gt: Time::Span, status: Int32, et: Time::Span, date: Time)
+  alias Content = NamedTuple(url: String, title: String, gt: Time::Span, response: HTTP::Client::Response)
+  alias Result  = NamedTuple(url: String, title: String, gt: Time::Span, status: Int32, et: Time::Span, date: Time?, method: String, confidence: Float64)
 
   @urls : Array(String)
   @url_count : Int32
+
   getter results : Channel(Result)
 
   getter mutex = Mutex.new
@@ -51,7 +52,9 @@ class App::Processor
         r["date"].try(&.to_s("%Y-%m-%d")),
         r["et"].total_seconds,
         r["gt"].total_seconds,
-        r["status"]
+        r["status"],
+        r["method"],
+        r["confidence"]
     end
   end
 
@@ -59,21 +62,5 @@ class App::Processor
   def finalize
     @download_tasks.close
     @parse_tasks.close
-  end
-
-  # Implements parse worker. Usually spawned in dedicated Fibers.
-  def parser
-    loop do
-      data = @parse_tasks.receive
-
-      tm = Time.monotonic
-      date = App::Parser::HTML::Basic.new(data["body"]).parse
-      tm = Time.monotonic - tm
-      @results.send({url: data["url"], gt: data["gt"], status: data["status"], et: tm, date: date})
-      @mutex.synchronize do
-        @parse_time += tm
-      end
-    end
-    rescue e : Channel::ClosedError
   end
 end

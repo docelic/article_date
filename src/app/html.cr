@@ -19,6 +19,10 @@ module App
     https://gardenerspath.com/how-to/beginners/first-vegetable-garden/
     https://lifehacker.com/the-seven-easiest-vegetables-to-grow-for-beginner-garde-1562176780
     https://www.gardeningknowhow.com/edible/vegetables/vgen/vegetable-gardening-for-beginners.htm
+    https://arstechnica.com/gadgets/2020/03/amds-7nm-ryzen-4000-laptop-processors-are-finally-here/
+    https://github.com/docelic/article_date
+    https://github.com/crystal-lang/crystal/releases
+    https://en.wikipedia.org/wiki/Bhutan
     URLS
 
     # Wraps content in basic HTML layout
@@ -35,7 +39,7 @@ module App
         <html>
           <head>
             <style>
-              body { text-align:center; width:80%; margin: 10px auto; font-family: Tahoma, Verdana, Segoe, sans-serif; }
+              body { text-align:center; width:90%; margin: 10px auto; font-family: Tahoma, Verdana, Segoe, sans-serif; }
               textarea { width:100%; height: 30%;}
               table { border-collapse: collapse;; width: 100%; border: 1px solid grey;}
               td { border: 1px solid grey; text-align: center;}
@@ -88,14 +92,16 @@ module App
             <th width="10%">Extract<br>(s)</th>
             <th width="10%">GET<br>(s)</th>
             <th width="8%">HTTP<br>Status</th>
+            <th width="8%">Parse<br>Method</th>
+            <th width="8%">Confidence<br>Score</th>
           </tr>
       HTML
       nil
     end
 
     # Prints individual results row
-    def self.table_row(io, url, title, date, et, gt, status)
-      io << %Q{<tr><td><a href="#{url}">#{title}</a></td><td>#{date}</td><td>#{"%.4f" % et}</td><td>#{"%.3f" % gt}</td><td>#{status}</td></tr>\n}
+    def self.table_row(io, url, title, date, et, gt, status, method, confidence)
+      io << %Q{<tr><td><a href="#{url}">#{title}</a></td><td>#{date.try &.to_s}</td><td>#{"%.4f" % et}</td><td>#{"%.3f" % gt}</td><td>#{status}</td><td>#{method}</td><td>#{confidence}</td></tr>\n}
       nil
     end
 
@@ -105,8 +111,9 @@ module App
           <tr>
             <th>TOTAL - real, extract, GET (s)</th>
             <th>#{"%.3f" % rt}</th>
-            <th>#{"%.3f" % et}</th>
+            <th>#{"%.4f" % et}</th>
             <th>#{"%.3f" % gt}</th>
+            <th></th>
             <th></th>
           </tr>
         </table>
