@@ -70,8 +70,8 @@ file.
 As URLs are processed, each result row in the browser
 displays the following values:
 
-1. Sequential serial number following the ordering of URLs in the list, starting from 0
-2. Page URL (in case of a download error it will also include the error text)
+1. Sequential number following the ordering of URLs in the list, starting from 0
+2. Page URL (in case of a download error also with a copy of the error text)
 3. Parsed creation/modification date. If no date is determined, the value is empty
 4. Elapsed time for parsing the date (this value includes all Fiber
 wait times, but as methods invoked are generally non-blocking and execute without
@@ -79,8 +79,7 @@ releasing the CPU, this value is considered to be close to real algorithm execut
 5. Elapsed time for downloading the page (this value includes all Fiber
 wait times, e.g. times waiting for web servers to respond as well as
 fibers to be scheduled on the CPU. As such it is regularly
-higher than the amount of time spent in actual execution or the real time
-spent executing the program)
+higher than the amount of time spent in actual execution)
 6. HTTP response status code
 7. Name of program method which determined the date
 8. The corresponding confidence store (0.0 - 1.0)
@@ -94,12 +93,12 @@ The footer of the table also contains 3 summarized values:
 Wallclock time is useful for determining general/overall performance.
 
 Parsing times report the actual times spent parsing and are useful for
-identifying potential improvements in the algorithms or on particular
+identifying potential needed improvements in the algorithms or on particular
 types of pages.
 
 Download times, if very high, are useful for identifying
 that the thread settings (options -d and -p) may be suboptimal
-and could be adjusted. Alternatively if they are very low, the
+and could be adjusted. Alternatively if very low, the
 number of threads could be increased.
 
 When processing of the URL list is complete, all open download connections

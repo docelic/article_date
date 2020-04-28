@@ -8,7 +8,8 @@ regardless of specifics.
 
 A series of files in the benchmarks/ directory implements those tests.
 Many tests check performance of C-level functions, and a couple LibC
-functions are used in the implementation (explained below).
+functions are used in the implementation (explained in more detail
+further below).
 
 ### Processors, Downloaders, and Parsers
 
@@ -47,7 +48,7 @@ identification, no tag nesting, etc.).
 
 It performs fast, non-regex searches within the input text to
 identify offsets of interest. The data within the offsets is then extracted
-into substrings for further processing. This further, targeted processing may
+into substrings for further processing. This targeted processing could
 then use more expensive functionality such as regex matching, etc.
 
 The parser's low-level functionality consists of the following primitives:
@@ -66,8 +67,8 @@ The parser currently implements three strategies:
 - Searching for date within JSON in script type="application/json" blocks
 - Searching for the first date found in the page (as a final fallback)
 
-They are by no means complete and both the quality and quantity of
-parsing methods could grow significantly. They produce initial results
+These methods are by no means complete and both the quality and quantity of
+parsing methods could grow significantly. But they produce initial results
 and help evaluate the general approach.
 
 ### Substrings and byte copying
@@ -89,13 +90,13 @@ result in a particularly clean implementation.
 Regex matching is convenient to carry out the final step of identifying
 the exact offsets and date formats.
 
-Once offset and date formats are determined using any method (but mostly
-regex matching is used to determine the exact position of dates and
-to extract their values), the dates are
-converted into `Time` instances. When dates consists of numbers which
+Once offsets and date formats are determined using any method (mostly
+using regex matching in the final step for the exact position of dates
+and extracting their values), the dates are
+converted into `Time` instances. When dates consist of numbers which
 can be sent as arguments to `Time#new`, that approach is used. When the
 values as not numeric (such as "January"), the format is determined as
-well and Times are instantiated using `Time#parse(string, format)`.
+well, and Times are instantiated using `Time#parse(string, format)`.
 As a last step, those `Time` instances are displayed in HTML results
 using format '%Y-%m-%d'.
 
@@ -108,7 +109,7 @@ autodetection, could potentially be ported to Crystal.
 ### Possible performance improvements
 
 General performance improvements are mentioned in *README.md*, while
-this section is about the algorithm specifically.
+this section is about the algorithm's methods specifically.
 
 The current implementation uses a couple LibC functions directly, although
 this was an experiment and is not crucial for the current performance level
@@ -116,10 +117,10 @@ because other, more expensive operations are also used (such as implicit string
 copying whenever `String#[]` is called.)
 
 Performance improvements could be achieved by eliminating instantiation
-of extra String objects as well byte copying that would happen as part of it.
+of extra String objects as well byte copying that unavoidably happens as part of it.
 This is not an easy task for a couple of reasons:
 
-Each String object consists of a header `{TYPE_ID : Int32, bytesize : Int32,
+Each Crystal String object consists of a header `{TYPE_ID : Int32, bytesize : Int32,
 size : Int32}` immediately followed by bytes. So it is not possible to
 create multiple strings pointing to the same bytes. (For reference, invoking
 `string.as(Int32*)` gives access to the three header fields, and invoking
@@ -128,7 +129,7 @@ create multiple strings pointing to the same bytes. (For reference, invoking
 Furthermore, String class can't be subclassed. One could create a separate
 class whose `to_unsafe` would point to the string's bytes and this would
 save time on copying the bytes (a time which grows linearly with the length
-of string and could be significant), but it would not save time on time for
+of string and could be significant), but it would not save time on
 object creation (nor would solve all problems).
 
 The absolute best performance could be achieved by working on only one /
@@ -137,11 +138,13 @@ adhered to the following principles:
 
 - In internal functions, always report search results as byte offsets {Begin,End} and/or pointers
 into the bytes (conversion between the two is easy - just pointer arithmetics)
-- Use only functions which support specifying the starting offset (string + B). This includes all
+- Use only functions which support specifying the starting offset (string + B). This includes many
+of the Crystal's functions which support specifying the offset, as well as all
 LibC functions accepting `char*` as one can manually adjust the byte pointer to the desired offset (e.g.
 `LibC.something( string.to_unsafe + offset, ... )`
 - For functions which do not support specifying the end offset, work around it
-by temporarily modifying the string's bytesize (header field 2) and optionally
+by temporarily modifying the original string's bytesize (header field 2) and optionally
 also setting the the corresponding end byte to null-char (for LibC functions)
-- After the content between offsets {B,E} is processed, restore the bytesize and nulled character. This
+- After the content between offsets {B,E} is processed, restore the original string's bytesize
+and nulled character. This
 is easy to implement using blocks (e.g. `def process(...) set_state; yield; restore_state`)
