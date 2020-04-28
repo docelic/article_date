@@ -3,6 +3,10 @@
 This repository contains a small, self-contained application for retrieving
 web pages and parsing their creation or modification dates.
 
+The idea was to try create a quick parser that is text-based,
+recognizing only minimal parts of HTML, and observe the performance and
+accuracy it would achieve.
+
 ## Running the app
 
 To run the application, run `shards` to install dependencies and then:
@@ -60,22 +64,26 @@ to be processed.
 
 When the application starts, it will print a summary of the running
 configuration to the screen. Also, if option -v is provided, it will
-print a dot ('.') to the screen for each downloaded file.
+print '.' and '+' to the screen for each downloaded and parsed
+file.
 
 As URLs are processed, each result row in the browser
 displays the following values:
 
-1. Page URL
-2. Parsed creation/modification date. If no date was determined, it is
-reported as "0001-01-01"
-3. Elapsed time for parsing the date (this value includes all Fiber
-wait times, but as almost all methods invoked should be non-blocking,
-this value is generally close to the real algorithm execution time)
-4. Elapsed time for downloading the page (this value includes all Fiber
+1. Sequential serial number following the ordering of URLs in the list, starting from 0
+2. Page URL (in case of a download error it will also include the error text)
+3. Parsed creation/modification date. If no date is determined, the value is empty
+4. Elapsed time for parsing the date (this value includes all Fiber
+wait times, but as methods invoked are generally non-blocking and execute without
+releasing the CPU, this value is considered to be close to real algorithm execution time)
+5. Elapsed time for downloading the page (this value includes all Fiber
 wait times, e.g. times waiting for web servers to respond as well as
 fibers to be scheduled on the CPU. As such it is regularly
-higher than the amount of time spent in actual execution)
-5. HTTP response status code
+higher than the amount of time spent in actual execution or the real time
+spent executing the program)
+6. HTTP response status code
+7. Name of program method which determined the date
+8. The corresponding confidence store (0.0 - 1.0)
 
 The footer of the table also contains 3 summarized values:
 
@@ -83,18 +91,19 @@ The footer of the table also contains 3 summarized values:
 2. Sum of all parsing times
 3. Sum of all download times
 
-Wallclock time is useful for determining bottom-line performance.
+Wallclock time is useful for determining general/overall performance.
 
-Parsing times are useful for identifying potential improvements in the
-parsing methods on particular types of pages.
+Parsing times report the actual times spent parsing and are useful for
+identifying potential improvements in the algorithms or on particular
+types of pages.
 
 Download times, if very high, are useful for identifying
 that the thread settings (options -d and -p) may be suboptimal
 and could be adjusted. Alternatively if they are very low, the
 number of threads could be increased.
 
-When the processing is complete, all open downloader connections and
-Fibers are terminated.
+When processing of the URL list is complete, all open download connections
+and Fibers terminate. They are re-created on every request.
 
 ## App design
 
@@ -130,19 +139,19 @@ page to parse.
 
 ### In more general terms
 
-The implemented design based on downloaders, channels, and parser threads is
-chosen on the idea that a real-world, larger system could use a
-similar architecture on a larger scale.
+The implemented design based on Channels, "downloaders" and "parsers"
+is chosen on the idea that a real-world, larger system could use
+a similar architecture on a larger scale.
 
 For example, the downloader processes might be advanced clients capable
-of parsing JavaScript-heavy/SPA pages, re-parsing stored content instead
+of downloading JavaScript-heavy/SPA pages, re-parsing stored content instead
 of downloading it again, and/or using various APIs instead of getting data
 through crawling (e.g. search engines get data from Wikipedia via
 API, not downloading HTML).
 
-These processes would then be sending contents via message passing or
-queueing systems for further processes down the line, of which the date
-parsing ones might be just one type of consumer.
+These processes would then send contents via message passing or
+queueing systems for further processes down the line, of which date
+parsers could be just one type of consumer.
 
 ### Improvements
 
@@ -155,10 +164,5 @@ could be added:
 particular domains and/or subdirectories within domains. The order in
 which the parsing strategies are run could then be dynamically adjusted
 for best performance.
-
-- Adding a confidence score to the parsing strategies so that the date
-parsing would continue until desired accuracy is reached. This would
-allow the value to be tuned dynamically and/or for the parsing to happen
-twice (first time quickly, second time more accurately).
 
 Thanks!

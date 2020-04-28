@@ -4,9 +4,9 @@ require "./parser/html/basic"
 
 # Default processor/scheduler implementation.
 class App::Processor
-  alias Task = Tuple(String, URI)
-  alias Content = NamedTuple(url: String, title: String, gt: Time::Span, response: HTTP::Client::Response)
-  alias Result  = NamedTuple(url: String, title: String, gt: Time::Span, status: Int32, et: Time::Span, date: Time?, method: String, confidence: Float64)
+  alias Task = Tuple(Int32, String, URI)
+  alias Content = NamedTuple(idx: Int32, url: String, title: String, gt: Time::Span, response: HTTP::Client::Response)
+  alias Result  = NamedTuple(idx: Int32, url: String, title: String, gt: Time::Span, status: Int32, et: Time::Span, date: Time?, method: String, confidence: Float64)
 
   @urls : Array(String)
   @url_count : Int32
@@ -32,10 +32,10 @@ class App::Processor
     get_time = Time::Span.new
     parse_time = Time::Span.new
 
-    @urls.each do |url|
+    @urls.each_with_index do |url, idx|
       uri = URI.parse url
       next unless domain = uri.host
-      @download_tasks.send({url, uri})
+      @download_tasks.send({idx, url, uri})
     end
 
     App::Config.downloader.new(self, @download_tasks, @parse_tasks, @url_count).run
@@ -47,6 +47,7 @@ class App::Processor
     @urls.size.times do
       r = @results.receive
       HTML.table_row io,
+        r["idx"],
         r["url"],
         r["title"],
         r["date"].try(&.to_s("%Y-%m-%d")),

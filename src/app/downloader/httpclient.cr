@@ -17,7 +17,7 @@ class App::Downloader::HTTPClient < App::Downloader
 
   def worker
     loop do
-      url, uri = @download_tasks.receive
+      idx, url, uri = @download_tasks.receive
       domain = uri.host.not_nil!
 
       @mutex.synchronize do
@@ -26,7 +26,7 @@ class App::Downloader::HTTPClient < App::Downloader
       end
 
       # Find free downloader
-      idx = loop do
+      di = loop do
         i = nil
         @mutex.synchronize do
           if i = @usage[domain].index false
@@ -44,8 +44,8 @@ class App::Downloader::HTTPClient < App::Downloader
 
       # Instantiate HTTP::Client if missing
       client = @mutex.synchronize do
-        @clients[domain][idx]? || begin
-          c = @clients[domain][idx..idx] = HTTP::Client.new uri
+        @clients[domain][di]? || begin
+          c = @clients[domain][di..di] = HTTP::Client.new uri
           c.connect_timeout= App::Config.connect_timeout
           c.dns_timeout    = App::Config.dns_timeout
           c.read_timeout   = App::Config.read_timeout
@@ -68,15 +68,15 @@ class App::Downloader::HTTPClient < App::Downloader
       @processor.mutex.synchronize do
         @processor.download_time += tm
       end
-      @usage[domain][idx] = false
+      @usage[domain][di] = false
 
       if 301 <= get.status_code <= 308
         # Means we got a redirect; requeue with new URL
-        @download_tasks.send({url, URI.parse get.headers["location"]})
+        @download_tasks.send({idx, url, URI.parse get.headers["location"]})
       else
         # We want to pass even invalid responses to parser tasks;
         # it is up to them to bail out if content is not there.
-        @parse_tasks.send App::Processor::Content.new url: url, title: title, gt: tm, response: get
+        @parse_tasks.send App::Processor::Content.new idx: idx, url: url, title: title, gt: tm, response: get
       end
     end
     rescue e : Channel::ClosedError

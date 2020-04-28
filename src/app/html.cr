@@ -43,8 +43,8 @@ module App
               textarea { width:100%; height: 30%;}
               table { border-collapse: collapse;; width: 100%; border: 1px solid grey;}
               td { border: 1px solid grey; text-align: center;}
-              td:nth-child(1) { text-align: left; }
-              td:nth-child(3), td:nth-child(4), th:nth-child(3), th:nth-child(4) { text-align: right; }
+              td:nth-child(2) { text-align: left; }
+              td:nth-child(4), td:nth-child(5), th:nth-child(4), th:nth-child(5) { text-align: right; }
               hr { margin:20px auto; }
               a { text-decoration: none; }
             </style>
@@ -87,6 +87,7 @@ module App
       io << <<-HTML
         <table>
           <tr>
+            <th width="4%">#</th>
             <th>URL<br>(#{total_urls})</th>
             <th width="15%">Date<br>(Y/m/d)</th>
             <th width="10%">Extract<br>(s)</th>
@@ -100,8 +101,8 @@ module App
     end
 
     # Prints individual results row
-    def self.table_row(io, url, title, date, et, gt, status, method, confidence)
-      io << %Q{<tr><td><a href="#{url}">#{title}</a></td><td>#{date.try &.to_s}</td><td>#{"%.4f" % et}</td><td>#{"%.3f" % gt}</td><td>#{status}</td><td>#{method}</td><td>#{confidence}</td></tr>\n}
+    def self.table_row(io, idx, url, title, date, et, gt, status, method, confidence)
+      io << %Q{<tr><td>#{idx}</td><td><a href="#{url}">#{title}</a></td><td>#{date.try &.to_s}</td><td>#{"%.4f" % et}</td><td>#{"%.3f" % gt}</td><td>#{status}</td><td>#{method}</td><td>#{confidence}</td></tr>\n}
       nil
     end
 
@@ -109,6 +110,7 @@ module App
     def self.table_footer(io, rt, et, gt)
       io << <<-HTML
           <tr>
+            <th></th>
             <th>TOTAL - real, extract, GET (s)</th>
             <th>#{"%.3f" % rt}</th>
             <th>#{"%.4f" % et}</th>
