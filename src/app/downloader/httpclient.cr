@@ -45,12 +45,15 @@ class App::Downloader::HTTPClient < App::Downloader
       # Instantiate HTTP::Client if missing
       client = @mutex.synchronize do
         @clients[domain][di]? || begin
-          c = @clients[domain][di..di] = HTTP::Client.new uri
-          c.connect_timeout= App::Config.connect_timeout
-          c.dns_timeout    = App::Config.dns_timeout
-          c.read_timeout   = App::Config.read_timeout
-          c.write_timeout  = App::Config.write_timeout
-          c
+          (di-@clients[domain].size+1).times do
+            c = HTTP::Client.new uri
+            c.connect_timeout= App::Config.connect_timeout
+            c.dns_timeout    = App::Config.dns_timeout
+            c.read_timeout   = App::Config.read_timeout
+            c.write_timeout  = App::Config.write_timeout
+            @clients[domain].push c
+          end
+          @clients[domain][di]
         end
       end
 
