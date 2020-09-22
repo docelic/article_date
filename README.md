@@ -1,7 +1,8 @@
 # Introduction
 
 This repository contains a small, self-contained application for retrieving
-web pages and parsing their creation or modification dates.
+web pages, parsing their creation or modification dates, and printing various
+accompanying statistics.
 
 The user interface consists of a simple HTML form for specifying the URLs
 and viewing the statistics. It is available at at
