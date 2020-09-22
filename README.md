@@ -3,9 +3,14 @@
 This repository contains a small, self-contained application for retrieving
 web pages and parsing their creation or modification dates.
 
-The idea was to try create a quick parser that is text-based,
-recognizing only minimal parts of HTML, and observe the performance and
-accuracy it would achieve.
+The user interface consists of a simple HTML form for specifying the URLs
+and viewing the statistics. It is available at at
+[http://localhost:3000/](http://localhost:3000/) once the application is
+running.
+
+The general idea for the project was to try create a quick parser that is
+text-based (recognizing only minimal parts of HTML), and observe the
+performance and accuracy it would achieve when parsing HTML content.
 
 ## Running the app
 
@@ -163,5 +168,3 @@ could be added:
 particular domains and/or subdirectories within domains. The order in
 which the parsing strategies are run could then be dynamically adjusted
 for best performance.
-
-Thanks!
