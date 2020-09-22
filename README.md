@@ -1,11 +1,11 @@
 # Introduction
 
 This repository contains a small, self-contained application for retrieving
-web pages, parsing their creation or modification dates, and printing various
+web pages, parsing their creation and modification dates, and printing various
 accompanying statistics.
 
 The user interface consists of a simple HTML form for specifying the URLs
-and viewing the statistics. It is available at at
+and displaying statistics. It is available at at
 [http://localhost:3000/](http://localhost:3000/) once the application is
 running.
 
@@ -15,7 +15,7 @@ performance and accuracy it would achieve when parsing HTML content.
 
 ## Running the app
 
-To run the application, run `shards` to install dependencies and then:
+To run the application, install Crystal, run `shards` to install dependencies, and then:
 
 ```bash
 crystal [run --release] src/app.cr [-- options]
@@ -69,12 +69,12 @@ to be processed.
 ## Runtime and results
 
 When the application starts, it will print a summary of the running
-configuration to the screen. Also, if option -v is provided, it will
-print '.' and '+' to the screen for each downloaded and parsed
+configuration to STDOUT. Also, if option -v is provided,
+it will print '.' and '+' for each downloaded and parsed
 file.
 
 As URLs are processed, each result row in the browser
-displays the following values:
+will display the following values:
 
 1. Sequential number following the ordering of URLs in the list, starting from 0
 2. Page URL (in case of a download error also with a copy of the error text)
