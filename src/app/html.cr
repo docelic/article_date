@@ -6,23 +6,13 @@ module App
 
     # Default list of URLs to populate the search box on first visit to the GUI.
     DEFAULT = <<-URLS
-    https://www.analyticsvidhya.com/blog/2019/06/comprehensive-guide-text-summarization-using-deep-learning-python/
-    https://towardsdatascience.com/text-summarization-using-deep-learning-6e379ed2e89c
-    https://machinelearningmastery.com/gentle-introduction-text-summarization/
-    https://www.sciencedirect.com/science/article/pii/S1319157819301259
-    https://github.com/mbadry1/DeepLearning.ai-Summary
-    https://edition.cnn.com/2020/03/12/opinions/oval-office-coronavirus-speech-trumps-worst-bergen/index.html
-    https://www.nytimes.com/2020/03/11/us/politics/trump-coronavirus-speech.html
-    https://www.caranddriver.com/reviews/a21786823/2019-audi-q8-first-drive-review/
-    https://www.topgear.com/car-reviews/audi/q8
-    https://www.youtube.com/watch?v=mii6NydPiqI
-    https://gardenerspath.com/how-to/beginners/first-vegetable-garden/
-    https://lifehacker.com/the-seven-easiest-vegetables-to-grow-for-beginner-garde-1562176780
-    https://www.gardeningknowhow.com/edible/vegetables/vgen/vegetable-gardening-for-beginners.htm
     https://arstechnica.com/gadgets/2020/03/amds-7nm-ryzen-4000-laptop-processors-are-finally-here/
     https://github.com/docelic/article_date
     https://github.com/crystal-lang/crystal/releases
-    https://en.wikipedia.org/wiki/Bhutan
+    https://en.wikipedia.org/wiki/Crystal_(programming_language)
+    https://www.google.com
+    https://duckduckgo.com
+    http://localhost
     URLS
 
     # Wraps content in basic HTML layout
