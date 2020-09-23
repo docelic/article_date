@@ -114,7 +114,7 @@ and Fibers terminate. They are re-created on every request.
 
 The app is based on Fibers and Channels.
 
-A group of N (--downloader) Fibers works on the input URLs, processing
+A group of N (--downloaders) Fibers works on the input URLs, processing
 each one while taking advantage of basic HTTP Keep-Alive implementation
 and maintaining at most N (--connections) HTTP::Clients open for each
 individual domain.
@@ -123,14 +123,14 @@ Parallel connections to the same host are not created up-front, but
 are instantiated only if needed to crawl multiple pages from the same
 domain simultaneously.
 
-The app is intended to run N (--downloader) download
+The app is intended to run N (--downloaders) download
 fibers in parallel. However, if the input list is heavily sorted by
 domain the performance may be reduced to N (--connections).
 In such cases, either set options -d and -c to the same value or
 randomize the input list (e.g. `sort -R <file>`).
 
 As each downloader downloads its page, it sends the intermediate data
-over the appropriate Channel through to the parser processes, and then
+over the appropriate Channel to the parser processes, and then
 waits for the next page to download.
 
 The parser processes receive downloaded data and try to determine the
@@ -139,7 +139,7 @@ The current design of the parsing and extraction system is documented
 in the file *PARSING.md*.
 
 As each parser finishes scanning through the page, it sends the final
-results and statistics through the results Channel and then waits for another
+results and statistics to the results Channel and then waits for another
 page to parse.
 
 ### In more general terms
