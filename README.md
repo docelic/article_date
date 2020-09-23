@@ -43,7 +43,7 @@ The application supports the following options:
     -T, --timeout         (5) - Set all timeouts (s)
 ```
 
-Complete example:
+**Complete example:**
 
 ```bash
 git clone https://github.com/docelic/article_date
