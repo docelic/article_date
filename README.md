@@ -5,7 +5,7 @@ web pages, parsing their creation and modification dates, and printing various
 accompanying statistics.
 
 The user interface consists of a simple HTML form for specifying the URLs
-and displaying statistics. It is available at at
+and displaying statistics. It is available at
 [http://localhost:3000/](http://localhost:3000/) once the application is
 running.
 
